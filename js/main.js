@@ -1,122 +1,44 @@
-import { tareasList } from '../lib/models/tareasList.js';
-import { addTarea } from '../lib/models/addTarea.js';
-import { logIn } from '../lib/models/login.js';
-import { tareasAsignadas } from '../lib/models/tareasAsignadas.js';
-import { tareasListMobile } from '../lib/models/tareasListMobile.js';
-import { tareasAsignadasMob } from '../lib/models/tareasAsignadasMobile.js';
-import { addTareaMob } from '../lib/models/addTareaMobile.js';
-import { logout } from '../lib/others/login.js';
-import { userList } from '../lib/models/userList.js'
-
-import { roleValidator, validateDevice, roleValidatorMobile } from '../lib/others/utils.js';
-
-let view = {};
-
-let model = {};
-
-let dispositivo = validateDevice();
-
-let user = getCookie("user");
-
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
-if (user !== "") {
+let btnAddTareas = document.getElementById('btnAddTareas');
+let inTareaText = document.getElementById('inTxtTarea');
+let contaTexto = 0;
+let contaClear = 0;
 
 
+inTareaText.oninput = function () {
 
-    let userCookie = JSON.parse(user);
-    console.log('userCookie', userCookie);
-    model.user = userCookie;
+    let texto = inTareaText.value.replace(/[^a-zA-Z0-9\s]/g, '');
 
-    /* console.log('mi dispositivo', dispositivo[0]); */
+    if (texto.length >= 123) {
 
-    if (dispositivo !== null) {
-        tareasListMobile(view, model);
-        roleValidatorMobile(model.user.role);
+        Swal.fire({
+            title: 'Llego al máximo de caracteres',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Enviar',
+            denyButtonText: `Editar`,
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
 
-        document.addEventListener('ready', event => {
-            
-            if (event.detail == 'tasks') {
-                tareasListMobile(view, model);
-            }
-            if (event.detail == 'taskNew') {
-                addTareaMob(view, model);
-            }
-            if (event.detail == 'taskList') {
-                tareasAsignadasMob(view, model);
-            }
-            if (event.detail == 'logout') {
-                logout();
+                contaTexto = 0;
+                document.getElementById('inTxtTarea').value = ``;
+                Swal.fire('Enviado!', '', 'success')
 
-                location.reload(true);
-            }
+            } else if (result.isDenied) {
 
-        });
-
-    } else {
-
-
-
-        tareasList(view, model);
-        roleValidator(model.user.role);
-        
-
-        document.addEventListener('ready', event => {
-
-
-            if (event.detail == 'newTask') {
-                addTarea(view, model);
-            }
-
-            if (event.detail == 'tasks') {
-                tareasList(view, model);
-            }
-
-            if (event.detail == 'tareasAsignadas') {
-                tareasAsignadas(view, model);
-            }
-            if (event.detail == 'users') {
-                userList(view, model);
-            }
-            if (event.detail == 'logout') {
-                logout();
-
-                location.reload(true);
-
+                let cantiCaracteres = document.getElementById('inTxtTarea').value.length;
+                console.log(cantiCaracteres);
+                contaTexto = cantiCaracteres;
+                Swal.fire('Puede seguir editando...', '', 'info')
 
             }
-
-        });
+        })
 
     }
+};
 
-
-} else {
-    logIn(view, model);
-}
-
-
-
-/* logIn(view, model); */
-
-function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
-
-
-
-
-
-
+btnAddTareas.addEventListener('click', () => {
+    let tarea = document.getElementById('inTxtTarea').value;
+    console.log(tarea);
+    document.getElementById('inTxtTarea').value = ``;
+});
